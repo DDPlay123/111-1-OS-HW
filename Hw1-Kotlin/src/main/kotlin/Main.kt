@@ -5,7 +5,7 @@ val MatrixB = arrayOf(80, 50)
 
 fun main() {
     val cores = Runtime.getRuntime().availableProcessors()
-    println("可用的核心數為:$cores")
+    println("可用的最大執行緒數為:$cores")
     // do Initialize
     val matrixA = initMatrix().first
     val matrixB = initMatrix().second
@@ -14,9 +14,9 @@ fun main() {
     repeat(3) {
         println("第${it + 1}次")
         runByForLoops(Triple(matrixA, matrixB, matrixC))
-        runByMultiThread(Triple(matrixA, matrixB, matrixC), 50)
-        runByMultiThread(Triple(matrixA, matrixB, matrixC), 10)
-        runByMultiThread(Triple(matrixA, matrixB, matrixC), cores)
+        runByMultiThread("B-1", Triple(matrixA, matrixB, matrixC), 50)
+        runByMultiThread("B-2", Triple(matrixA, matrixB, matrixC), 10)
+//        runByMultiThread("My Core", Triple(matrixA, matrixB, matrixC), cores)
         println("-----------------------------------")
     }
 }
@@ -38,7 +38,7 @@ private fun initMatrix(): Pair<Array<Array<Double>>, Array<Array<Double>>> {
 }
 
 private fun runByForLoops( // 一般迴圈解法
-    matrix: Triple<Array<Array<Double>>, Array<Array<Double>>, Array<Array<Double>>>
+        matrix: Triple<Array<Array<Double>>, Array<Array<Double>>, Array<Array<Double>>>
 ) {
     val timeCost = measureTimeMillis {
         for (i in matrix.first.indices) // 0 ~ 49
@@ -50,8 +50,9 @@ private fun runByForLoops( // 一般迴圈解法
 }
 
 private fun runByMultiThread( // 使用執行緒解法
-    matrix: Triple<Array<Array<Double>>, Array<Array<Double>>, Array<Array<Double>>>,
-    thread: Int
+        processName: String,
+        matrix: Triple<Array<Array<Double>>, Array<Array<Double>>, Array<Array<Double>>>,
+        thread: Int
 ) {
     val timeCost = measureTimeMillis {
         val threads = arrayOfNulls<Thread>(thread) // 定義多執行緒
@@ -71,12 +72,12 @@ private fun runByMultiThread( // 使用執行緒解法
         for (i in 0 until thread)
             threads[i]!!.join() // 整合所有執行緒
     }
-    println("【B-1】時間:${timeCost}ms")
+    println("【$processName】時間:${timeCost}ms")
 }
 
 class MultiThread(
-    private val matrix: Triple<Array<Array<Double>>, Array<Array<Double>>, Array<Array<Double>>>,
-    private val startRow: Int, private val endRow: Int // 起始行 和 結束行。
+        private val matrix: Triple<Array<Array<Double>>, Array<Array<Double>>, Array<Array<Double>>>,
+        private val startRow: Int, private val endRow: Int // 起始行 和 結束行。
 ) : Runnable {
     override fun run() {
         var i: Int = startRow
